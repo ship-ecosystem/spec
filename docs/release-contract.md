@@ -48,6 +48,8 @@ against both this document and the schema (see the repository's README).
   place once everything succeeded, with `release.json` written last. **A folder
   without `release.json` is incomplete** and must not be deployed.
 - A producer never silently overwrites an existing release folder.
+- A release folder doesn't assume what runs it: Compose is the reference way
+  to run it, and other tools may convert it.
 
 ## `release.json`
 
@@ -85,11 +87,11 @@ against both this document and the schema (see the repository's README).
     { "service": "reverb", "port": 8080, "role": "websocket", "health": null, "urlSetting": "VITE_REVERB_HOST" }
   ],
   "services": {
-    "app":       { "role": "app", "image": "client-app:1.5.0", "healthcheck": false, "volumes": [] },
-    "horizon":   { "role": "process", "image": "client-app:1.5.0", "healthcheck": false, "volumes": [] },
+    "app":       { "role": "app", "image": "client-app:1.5.0", "healthcheck": true, "volumes": [] },
+    "horizon":   { "role": "process", "image": "client-app:1.5.0", "healthcheck": true, "volumes": [] },
     "postgres":  { "role": "infrastructure", "image": "postgres:18-alpine@sha256:…", "healthcheck": true, "volumes": ["ship-postgres-data"] },
-    "reverb":    { "role": "process", "image": "client-app:1.5.0", "healthcheck": false, "volumes": [] },
-    "webserver": { "role": "web", "image": "client-webserver:1.5.0", "healthcheck": false, "volumes": [] }
+    "reverb":    { "role": "process", "image": "client-app:1.5.0", "healthcheck": true, "volumes": [] },
+    "webserver": { "role": "web", "image": "client-webserver:1.5.0", "healthcheck": true, "volumes": [] }
   },
   "framework": "laravel",
   "runtime": "php-fpm",
@@ -104,7 +106,13 @@ against both this document and the schema (see the repository's README).
     "needs": ["postgres"],
     "commands": [["sh", "-c", "php artisan migrate --force"]]
   },
-  "requires": { "networks": ["proxy"] }
+  "requires": { "networks": ["proxy"] },
+  "console": {
+    "service": "app",
+    "user": "www-data",
+    "shell": ["sh"],
+    "commands": { "artisan": ["php", "artisan"] }
+  }
 }
 ```
 
@@ -154,6 +162,11 @@ against both this document and the schema (see the repository's README).
 | `deploy.needs` | string[] | Services that must be up and healthy before the commands run. |
 | `deploy.commands` | string[][] | The commands, in order, each an argv. Each runs in a one-off container of `deploy.service`, with no other service started by it: `docker compose run --rm --no-deps -T <service> <argv…>`. A failing command stops the deploy. |
 | `requires.networks` | string[] | External Docker networks the Compose file attaches to, which must exist before it starts. Every `http[]` service is attached to them. |
+| `console` | object | How to run commands in the running app (see "Running commands in a release"). |
+| `console.service` | string | The service to run commands in: the app. |
+| `console.user` | string | The user to run every command and shell as. The app's processes run as this user; a command run as anyone else (root, by default) can leave files the app can no longer write. |
+| `console.shell` | string[] | An interactive shell's argv, e.g. `["sh"]`. |
+| `console.commands` | object | The framework's console commands by name, each an argv prefix the arguments are appended to: `{"artisan": ["php", "artisan"]}`. Empty when the framework is unknown. **Unknown name:** offer it as a plain command. |
 
 Every array is present, even when empty, and sorted, except `images`,
 `pulledImages`, `http` and `deploy.commands`, whose order is meaningful or
@@ -188,6 +201,20 @@ On a machine with Docker, from the release folder:
    described above. The previous release may keep serving meanwhile, or be
    stopped first.
 4. `docker compose up -d`.
+
+## Running commands in a release
+
+A deployment tool runs commands in a running release with Compose alone, from
+the release folder (under its own project name if it uses one), always as
+`console.user`:
+
+```sh
+docker compose exec -u www-data app sh                       # console.shell
+docker compose exec -u www-data app php artisan migrate:status  # console.commands.artisan + arguments
+```
+
+Other services (a database, a cache) have their own shells and clients, run the
+same way without `-u`: `docker compose exec redis redis-cli`.
 
 ## Notes for producers and readers
 

@@ -2,7 +2,7 @@
     "format": "ship-release",
     "app": "feed",
     "tag": "1.0.0",
-    "createdAt": "2026-11-18T13:05:22Z",
+    "createdAt": "2026-11-18T15:12:46Z",
     "builder": {
         "package": "php-ship/ship",
         "version": "dev-main"
@@ -73,7 +73,7 @@
         "app": {
             "role": "app",
             "image": "feed-app:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         },
         "centrifugo": {
@@ -101,7 +101,7 @@
         "webserver": {
             "role": "web",
             "image": "feed-webserver:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         }
     },
@@ -136,5 +136,18 @@
     "deploy": null,
     "requires": {
         "networks": []
+    },
+    "console": {
+        "service": "app",
+        "user": "www-data",
+        "shell": [
+            "sh"
+        ],
+        "commands": {
+            "console": [
+                "php",
+                "bin/console"
+            ]
+        }
     }
 }

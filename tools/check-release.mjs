@@ -55,6 +55,7 @@ export function contractProblems(release) {
     ...release.pulledImages.flatMap((image, i) => image.services.map((s) => [`pulledImages[${i}].services`, s])),
     ...release.http.map((entry, i) => [`http[${i}].service`, entry.service]),
     ...(release.deploy ? [['deploy.service', release.deploy.service], ...release.deploy.needs.map((s) => ['deploy.needs', s])] : []),
+    ['console.service', release.console.service],
   ];
   for (const [field, name] of mustExist) {
     if (!services.has(name)) problems.push(`${field} names ${name}, which isn't in services`);

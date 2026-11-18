@@ -11,6 +11,14 @@ services:
         path: .env
         required: false
     extra_hosts: []
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'SCRIPT_NAME=/ship-fpm-ping SCRIPT_FILENAME=/ship-fpm-ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     restart: unless-stopped
     environment:
       DB_CONNECTION: pgsql
@@ -36,6 +44,14 @@ services:
     ports: []
     depends_on:
       - app
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1/ship-fpm-ping | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     networks:
       - ship
       - external
@@ -96,6 +112,16 @@ services:
       -
         path: .env
         required: false
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - '-r'
+        - "exit(@file_get_contents('http://127.0.0.1:8080/', false, stream_context_create(['http' => ['ignore_errors' => true, 'timeout' => 5]])) === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     restart: unless-stopped
     environment:
       DB_CONNECTION: pgsql
@@ -150,6 +176,14 @@ services:
       - external
     restart: unless-stopped
     stop_grace_period: 60s
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'test "$$(awk -v up="$$(cut -d" " -f1 /proc/uptime)" ''{print int(up - $$22 / 100)}'' /proc/1/stat)" -ge 10'
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     image: 'client-app:1.0.0'
 networks:
   ship:

@@ -10,6 +10,16 @@ services:
         path: .env
         required: false
     extra_hosts: []
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - '-r'
+        - "exit(@file_get_contents('http://127.0.0.1:8000/', false, stream_context_create(['http' => ['ignore_errors' => true, 'timeout' => 5]])) === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     command:
       - sh
       - '-c'

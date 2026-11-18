@@ -2,7 +2,7 @@
     "format": "ship-release",
     "app": "client",
     "tag": "1.0.0",
-    "createdAt": "2026-11-18T13:05:22Z",
+    "createdAt": "2026-11-18T15:12:46Z",
     "builder": {
         "package": "php-ship/ship",
         "version": "dev-main"
@@ -69,13 +69,13 @@
         "app": {
             "role": "app",
             "image": "client-app:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         },
         "horizon": {
             "role": "process",
             "image": "client-app:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         },
         "postgres": {
@@ -97,13 +97,13 @@
         "reverb": {
             "role": "process",
             "image": "client-app:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         },
         "webserver": {
             "role": "web",
             "image": "client-webserver:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         }
     },
@@ -148,5 +148,18 @@
         "networks": [
             "proxy"
         ]
+    },
+    "console": {
+        "service": "app",
+        "user": "www-data",
+        "shell": [
+            "sh"
+        ],
+        "commands": {
+            "artisan": [
+                "php",
+                "artisan"
+            ]
+        }
     }
 }

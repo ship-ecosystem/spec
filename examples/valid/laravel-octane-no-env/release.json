@@ -2,7 +2,7 @@
     "format": "ship-release",
     "app": "shop",
     "tag": "1.0.0",
-    "createdAt": "2026-11-18T13:05:22Z",
+    "createdAt": "2026-11-18T15:12:46Z",
     "builder": {
         "package": "php-ship/ship",
         "version": "dev-main"
@@ -45,7 +45,7 @@
         "app": {
             "role": "app",
             "image": "shop-app:1.0.0",
-            "healthcheck": false,
+            "healthcheck": true,
             "volumes": []
         },
         "mysql": {
@@ -82,5 +82,18 @@
     "deploy": null,
     "requires": {
         "networks": []
+    },
+    "console": {
+        "service": "app",
+        "user": "www-data",
+        "shell": [
+            "sh"
+        ],
+        "commands": {
+            "artisan": [
+                "php",
+                "artisan"
+            ]
+        }
     }
 }

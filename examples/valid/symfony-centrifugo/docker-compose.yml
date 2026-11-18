@@ -10,6 +10,14 @@ services:
         path: .env
         required: false
     extra_hosts: []
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'SCRIPT_NAME=/ship-fpm-ping SCRIPT_FILENAME=/ship-fpm-ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     restart: unless-stopped
     environment:
       CACHE_STORE: redis
@@ -31,6 +39,14 @@ services:
     ports: []
     depends_on:
       - app
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1/ship-fpm-ping | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
     networks:
       - ship
     restart: unless-stopped
