@@ -1,0 +1,86 @@
+{
+    "format": "ship-release",
+    "app": "shop",
+    "tag": "1.0.0",
+    "createdAt": "2026-11-18T13:05:22Z",
+    "builder": {
+        "package": "php-ship/ship",
+        "version": "dev-main"
+    },
+    "source": {
+        "gitCommit": "3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d",
+        "dirty": false
+    },
+    "platform": "linux/amd64",
+    "compose": "docker-compose.yml",
+    "images": [
+        {
+            "ref": "shop-app:1.0.0",
+            "id": "sha256:f9208f2fadf7c1644536b373976c637a6ffb534f716aa02812004d264ad13bdd",
+            "file": "images/app.tar",
+            "sha256": "461b63013a12fde0eb4dbb8155a661e64d9a4010209f6a630c06d128412bcf34",
+            "services": [
+                "app"
+            ]
+        }
+    ],
+    "pulledImages": [
+        {
+            "ref": "mysql:9.7@sha256:be3fbdfb68760d0f1bfbdbd7ac58154192cfcd5a2b008c9c52ccade88f0757d8",
+            "services": [
+                "mysql"
+            ]
+        }
+    ],
+    "http": [
+        {
+            "service": "app",
+            "port": 8000,
+            "role": "site",
+            "health": "/up",
+            "urlSetting": "APP_URL"
+        }
+    ],
+    "services": {
+        "app": {
+            "role": "app",
+            "image": "shop-app:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        },
+        "mysql": {
+            "role": "infrastructure",
+            "image": "mysql:9.7@sha256:be3fbdfb68760d0f1bfbdbd7ac58154192cfcd5a2b008c9c52ccade88f0757d8",
+            "healthcheck": true,
+            "volumes": [
+                "ship-mysql-data"
+            ]
+        }
+    },
+    "framework": "laravel",
+    "runtime": "octane-swoole",
+    "env": {
+        "file": null,
+        "keys": [
+            "APP_KEY",
+            "APP_URL",
+            "DB_PASSWORD",
+            "DB_ROOT_PASSWORD"
+        ],
+        "referenced": [
+            "DB_DATABASE",
+            "DB_PASSWORD",
+            "DB_ROOT_PASSWORD",
+            "DB_USERNAME"
+        ],
+        "required": [
+            "APP_KEY",
+            "DB_PASSWORD",
+            "DB_ROOT_PASSWORD"
+        ]
+    },
+    "deploy": null,
+    "requires": {
+        "networks": []
+    }
+}

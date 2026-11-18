@@ -1,0 +1,1 @@
+env.required lists STRIPE_KEY, which env.keys doesn't

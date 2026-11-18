@@ -1,0 +1,7 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ship-ecosystem/spec/main/schemas/ship.schema.json",
+    "php": "8.4",
+    "services": {
+        "database": "postgres"
+    }
+}

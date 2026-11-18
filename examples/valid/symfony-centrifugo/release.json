@@ -1,0 +1,140 @@
+{
+    "format": "ship-release",
+    "app": "feed",
+    "tag": "1.0.0",
+    "createdAt": "2026-11-18T13:05:22Z",
+    "builder": {
+        "package": "php-ship/ship",
+        "version": "dev-main"
+    },
+    "source": {
+        "gitCommit": "3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d",
+        "dirty": false
+    },
+    "platform": "linux/amd64",
+    "compose": "docker-compose.yml",
+    "images": [
+        {
+            "ref": "feed-app:1.0.0",
+            "id": "sha256:8b0dd0a8ba5b2b7129c2f5c0b84b886e9858217f2c1bbf0b4543ae573191f3cb",
+            "file": "images/app.tar",
+            "sha256": "ba191d5d52776b160a4185d676f4793e5750f1eb5d16d5e02272c381e0a02410",
+            "services": [
+                "app"
+            ]
+        },
+        {
+            "ref": "feed-webserver:1.0.0",
+            "id": "sha256:f37a18539132cb5c4260d80e948b70b52e705ec60a57efcd3555b86d38d3127d",
+            "file": "images/webserver.tar",
+            "sha256": "7e2fe798222e9ba060a3a03dd67b385b594a4ed1002d4b8fdb24aa3cc33b8721",
+            "services": [
+                "webserver"
+            ]
+        }
+    ],
+    "pulledImages": [
+        {
+            "ref": "centrifugo/centrifugo:v6.10@sha256:8a168d8bbcbfd08777a300fb0a6afd2cc97d63e37a09c21ab9ee15e174673dcb",
+            "services": [
+                "centrifugo"
+            ]
+        },
+        {
+            "ref": "typesense/typesense:30.2@sha256:6a076765ce6208b94450686b84864607468cde388152ebeed573f256f027834a",
+            "services": [
+                "typesense"
+            ]
+        },
+        {
+            "ref": "valkey/valkey:9.0-alpine@sha256:00085ac0881903ede32c2985ddc964a977b9dd28fe5fcb6b24b1373dfeb12ba0",
+            "services": [
+                "valkey"
+            ]
+        }
+    ],
+    "http": [
+        {
+            "service": "webserver",
+            "port": 80,
+            "role": "site",
+            "health": null,
+            "urlSetting": null
+        },
+        {
+            "service": "centrifugo",
+            "port": 8000,
+            "role": "websocket",
+            "health": "/health",
+            "urlSetting": "VITE_CENTRIFUGO_URL"
+        }
+    ],
+    "services": {
+        "app": {
+            "role": "app",
+            "image": "feed-app:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        },
+        "centrifugo": {
+            "role": "infrastructure",
+            "image": "centrifugo/centrifugo:v6.10@sha256:8a168d8bbcbfd08777a300fb0a6afd2cc97d63e37a09c21ab9ee15e174673dcb",
+            "healthcheck": true,
+            "volumes": []
+        },
+        "typesense": {
+            "role": "infrastructure",
+            "image": "typesense/typesense:30.2@sha256:6a076765ce6208b94450686b84864607468cde388152ebeed573f256f027834a",
+            "healthcheck": true,
+            "volumes": [
+                "ship-typesense-data"
+            ]
+        },
+        "valkey": {
+            "role": "infrastructure",
+            "image": "valkey/valkey:9.0-alpine@sha256:00085ac0881903ede32c2985ddc964a977b9dd28fe5fcb6b24b1373dfeb12ba0",
+            "healthcheck": true,
+            "volumes": [
+                "ship-valkey-data"
+            ]
+        },
+        "webserver": {
+            "role": "web",
+            "image": "feed-webserver:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        }
+    },
+    "framework": "symfony",
+    "runtime": "php-fpm",
+    "env": {
+        "file": ".env",
+        "keys": [
+            "APP_SECRET",
+            "CENTRIFUGO_ALLOWED_ORIGINS",
+            "CENTRIFUGO_API_KEY",
+            "CENTRIFUGO_TOKEN_SECRET",
+            "TYPESENSE_API_KEY",
+            "VITE_CENTRIFUGO_URL"
+        ],
+        "referenced": [
+            "CENTRIFUGO_ALLOWED_ORIGINS",
+            "CENTRIFUGO_API_KEY",
+            "CENTRIFUGO_ENGINE",
+            "CENTRIFUGO_PORT",
+            "CENTRIFUGO_REDIS_ADDRESS",
+            "CENTRIFUGO_TOKEN_SECRET",
+            "TYPESENSE_API_KEY"
+        ],
+        "required": [
+            "CENTRIFUGO_ALLOWED_ORIGINS",
+            "CENTRIFUGO_API_KEY",
+            "CENTRIFUGO_TOKEN_SECRET",
+            "TYPESENSE_API_KEY"
+        ]
+    },
+    "deploy": null,
+    "requires": {
+        "networks": []
+    }
+}

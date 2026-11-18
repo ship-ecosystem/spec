@@ -1,0 +1,24 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ship-ecosystem/spec/main/schemas/ship.schema.json",
+    "name": "client",
+    "php": "8.4",
+    "node": "24",
+    "services": {
+        "database": "postgres",
+        "cache": "valkey",
+        "search": "typesense",
+        "broadcasting": "centrifugo",
+        "broker": "rabbitmq"
+    },
+    "additionalServices": [
+        {"group": "database", "service": "mysql", "name": "analytics"}
+    ],
+    "serviceNames": {"app": "client-app"},
+    "externalNetwork": "proxy",
+    "extensions": [],
+    "phpExtensions": ["gd"],
+    "publishPorts": false,
+    "hostUser": true,
+    "deployCommands": ["php artisan migrate --force"],
+    "processes": {"horizon": "php artisan horizon"}
+}

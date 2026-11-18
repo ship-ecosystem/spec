@@ -1,0 +1,1 @@
+schema: /pulledImages/0/ref must match pattern

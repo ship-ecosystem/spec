@@ -1,0 +1,1 @@
+services.app.image client-app:9.9.9 is neither an images[].ref nor a pulledImages[].ref

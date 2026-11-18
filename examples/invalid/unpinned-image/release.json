@@ -1,0 +1,151 @@
+{
+    "format": "ship-release",
+    "app": "client",
+    "tag": "1.0.0",
+    "createdAt": "2026-11-18T13:05:22Z",
+    "builder": {
+        "package": "php-ship/ship",
+        "version": "dev-main"
+    },
+    "source": {
+        "gitCommit": "3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d3f9c2e1d",
+        "dirty": false
+    },
+    "platform": "linux/amd64",
+    "compose": "docker-compose.yml",
+    "images": [
+        {
+            "ref": "client-app:1.0.0",
+            "id": "sha256:4443c610201a5f79bc4651eeaa1be4b4397973ce09f6e74e9d7402c658342c32",
+            "file": "images/app.tar",
+            "sha256": "c3e2851ef5c9e6751763b99ed147e8214e5b0555c61b8b7f17e031437026f046",
+            "services": [
+                "app",
+                "horizon",
+                "reverb"
+            ]
+        },
+        {
+            "ref": "client-webserver:1.0.0",
+            "id": "sha256:4bd3cbe865173418718d266648cafcc51366fdeaf2276d971c5d76efa44c79da",
+            "file": "images/webserver.tar",
+            "sha256": "4181d9a54843b5201ee1fde5156393a5d7b66f90d0128a63ea75f64b99a9b7c4",
+            "services": [
+                "webserver"
+            ]
+        }
+    ],
+    "pulledImages": [
+        {
+            "ref": "postgres:18-alpine",
+            "services": [
+                "postgres"
+            ]
+        },
+        {
+            "ref": "redis:8-alpine@sha256:3f0d187b17fcfe9679830c1ac54ac7aa713440831f3fa9d576a59300168604f7",
+            "services": [
+                "redis"
+            ]
+        }
+    ],
+    "http": [
+        {
+            "service": "webserver",
+            "port": 80,
+            "role": "site",
+            "health": "/up",
+            "urlSetting": "APP_URL"
+        },
+        {
+            "service": "reverb",
+            "port": 8080,
+            "role": "websocket",
+            "health": null,
+            "urlSetting": "VITE_REVERB_HOST"
+        }
+    ],
+    "services": {
+        "app": {
+            "role": "app",
+            "image": "client-app:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        },
+        "horizon": {
+            "role": "process",
+            "image": "client-app:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        },
+        "postgres": {
+            "role": "infrastructure",
+            "image": "postgres:18-alpine@sha256:8c876818198c13fd9a9edecdaa89d5b2f123514eecde48079168ff9dbe3118e5",
+            "healthcheck": true,
+            "volumes": [
+                "ship-postgres-data"
+            ]
+        },
+        "redis": {
+            "role": "infrastructure",
+            "image": "redis:8-alpine@sha256:3f0d187b17fcfe9679830c1ac54ac7aa713440831f3fa9d576a59300168604f7",
+            "healthcheck": true,
+            "volumes": [
+                "ship-redis-data"
+            ]
+        },
+        "reverb": {
+            "role": "process",
+            "image": "client-app:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        },
+        "webserver": {
+            "role": "web",
+            "image": "client-webserver:1.0.0",
+            "healthcheck": false,
+            "volumes": []
+        }
+    },
+    "framework": "laravel",
+    "runtime": "php-fpm",
+    "env": {
+        "file": ".env",
+        "keys": [
+            "APP_KEY",
+            "APP_URL",
+            "DB_PASSWORD",
+            "REVERB_APP_KEY",
+            "VITE_REVERB_HOST"
+        ],
+        "referenced": [
+            "DB_DATABASE",
+            "DB_PASSWORD",
+            "DB_USERNAME",
+            "REVERB_PORT"
+        ],
+        "required": [
+            "APP_KEY",
+            "DB_PASSWORD"
+        ]
+    },
+    "deploy": {
+        "service": "app",
+        "needs": [
+            "postgres",
+            "redis"
+        ],
+        "commands": [
+            [
+                "sh",
+                "-c",
+                "php artisan migrate --force"
+            ]
+        ]
+    },
+    "requires": {
+        "networks": [
+            "proxy"
+        ]
+    }
+}

@@ -1,0 +1,107 @@
+name: feed
+services:
+  app:
+    volumes: []
+    ports: []
+    networks:
+      - ship
+    env_file:
+      -
+        path: .env
+        required: false
+    extra_hosts: []
+    restart: unless-stopped
+    environment:
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      REDIS_HOST: valkey
+      REDIS_PORT: '6379'
+      SCOUT_DRIVER: typesense
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: '8108'
+      TYPESENSE_PROTOCOL: http
+      TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-shipsearchkey}'
+      CENTRIFUGO_URL: 'http://centrifugo:8000'
+      CENTRIFUGO_API_KEY: '${CENTRIFUGO_API_KEY:-ship-centrifugo-api-key}'
+      CENTRIFUGO_TOKEN_SECRET: '${CENTRIFUGO_TOKEN_SECRET:-ship-centrifugo-token-secret}'
+      VITE_CENTRIFUGO_URL: 'ws://localhost:${CENTRIFUGO_PORT:-8001}/connection/websocket'
+    image: 'feed-app:1.0.0'
+  webserver:
+    volumes: []
+    ports: []
+    depends_on:
+      - app
+    networks:
+      - ship
+    restart: unless-stopped
+    image: 'feed-webserver:1.0.0'
+  valkey:
+    image: 'valkey/valkey:9.0-alpine@sha256:00085ac0881903ede32c2985ddc964a977b9dd28fe5fcb6b24b1373dfeb12ba0'
+    command:
+      - valkey-server
+      - '--save'
+      - '60 1'
+    volumes:
+      - 'ship-valkey-data:/data'
+    healthcheck:
+      test:
+        - CMD
+        - valkey-cli
+        - ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ship
+    restart: unless-stopped
+    ports: []
+  typesense:
+    image: 'typesense/typesense:30.2@sha256:6a076765ce6208b94450686b84864607468cde388152ebeed573f256f027834a'
+    environment:
+      TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:?set a real value in .env.production}'
+      TYPESENSE_DATA_DIR: /data
+    volumes:
+      - 'ship-typesense-data:/data'
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - '-c'
+        - 'exec 3<>/dev/tcp/127.0.0.1/8108 && printf "GET /health HTTP/1.0\r\n\r\n" >&3 && grep -q ''"ok":true'' <&3'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - ship
+    restart: unless-stopped
+    ports: []
+  centrifugo:
+    image: 'centrifugo/centrifugo:v6.10@sha256:8a168d8bbcbfd08777a300fb0a6afd2cc97d63e37a09c21ab9ee15e174673dcb'
+    environment:
+      CENTRIFUGO_HTTP_API_KEY: '${CENTRIFUGO_API_KEY:?set a real value in .env.production}'
+      CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY: '${CENTRIFUGO_TOKEN_SECRET:?set a real value in .env.production}'
+      CENTRIFUGO_CLIENT_ALLOWED_ORIGINS: '${CENTRIFUGO_ALLOWED_ORIGINS:?set a real value in .env.production}'
+      CENTRIFUGO_HEALTH_ENABLED: 'true'
+      CENTRIFUGO_ENGINE_TYPE: '${CENTRIFUGO_ENGINE:-memory}'
+      CENTRIFUGO_ENGINE_REDIS_ADDRESS: '${CENTRIFUGO_REDIS_ADDRESS:-redis://valkey:6379}'
+    ports: []
+    depends_on:
+      - valkey
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '-qO-'
+        - 'http://127.0.0.1:8000/health'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ship
+    restart: unless-stopped
+networks:
+  ship:
+    driver: bridge
+volumes:
+  ship-valkey-data: null
+  ship-typesense-data: null

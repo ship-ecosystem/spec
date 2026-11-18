@@ -1,0 +1,162 @@
+name: other
+services:
+  app:
+    volumes: []
+    ports: []
+    networks:
+      - ship
+      - external
+    env_file:
+      -
+        path: .env
+        required: false
+    extra_hosts: []
+    restart: unless-stopped
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      BROADCAST_CONNECTION: reverb
+      REVERB_HOST: reverb
+      REVERB_PORT: '8080'
+      REVERB_SCHEME: http
+      VITE_REVERB_HOST: localhost
+      VITE_REVERB_PORT: '${REVERB_PORT:-8080}'
+      VITE_REVERB_SCHEME: http
+    image: 'client-app:1.0.0'
+  webserver:
+    volumes: []
+    ports: []
+    depends_on:
+      - app
+    networks:
+      - ship
+      - external
+    restart: unless-stopped
+    image: 'client-webserver:1.0.0'
+  postgres:
+    image: 'postgres:18-alpine@sha256:8c876818198c13fd9a9edecdaa89d5b2f123514eecde48079168ff9dbe3118e5'
+    environment:
+      POSTGRES_DB: '${DB_DATABASE:-app}'
+      POSTGRES_USER: '${DB_USERNAME:-app}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:?set a real value in .env.production}'
+    volumes:
+      - 'ship-postgres-data:/var/lib/postgresql'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U ${DB_USERNAME:-app}'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ship
+    restart: unless-stopped
+    ports: []
+  redis:
+    image: 'redis:8-alpine@sha256:3f0d187b17fcfe9679830c1ac54ac7aa713440831f3fa9d576a59300168604f7'
+    command:
+      - redis-server
+      - '--save'
+      - '60 1'
+    volumes:
+      - 'ship-redis-data:/data'
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ship
+    restart: unless-stopped
+    ports: []
+  reverb:
+    command:
+      - php
+      - artisan
+      - 'reverb:start'
+      - '--host=0.0.0.0'
+      - '--port=8080'
+    volumes: []
+    ports: []
+    networks:
+      - ship
+      - external
+    env_file:
+      -
+        path: .env
+        required: false
+    restart: unless-stopped
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      BROADCAST_CONNECTION: reverb
+      REVERB_HOST: reverb
+      REVERB_PORT: '8080'
+      REVERB_SCHEME: http
+      VITE_REVERB_HOST: localhost
+      VITE_REVERB_PORT: '${REVERB_PORT:-8080}'
+      VITE_REVERB_SCHEME: http
+      SHIP_RUN_AS: www-data
+    image: 'client-app:1.0.0'
+  horizon:
+    command:
+      - sh
+      - '-c'
+      - 'php artisan horizon'
+    env_file:
+      -
+        path: .env
+        required: false
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      BROADCAST_CONNECTION: reverb
+      REVERB_HOST: reverb
+      REVERB_PORT: '8080'
+      REVERB_SCHEME: http
+      VITE_REVERB_HOST: localhost
+      VITE_REVERB_PORT: '${REVERB_PORT:-8080}'
+      VITE_REVERB_SCHEME: http
+      SHIP_RUN_AS: www-data
+    networks:
+      - ship
+      - external
+    restart: unless-stopped
+    stop_grace_period: 60s
+    image: 'client-app:1.0.0'
+networks:
+  ship:
+    driver: bridge
+  external:
+    name: proxy
+    external: true
+volumes:
+  ship-postgres-data: null
+  ship-redis-data: null

@@ -1,0 +1,1 @@
+docker-compose.yml's top-level name is other, not app (client)

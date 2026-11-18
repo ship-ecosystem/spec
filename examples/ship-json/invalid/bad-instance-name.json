@@ -1,0 +1,1 @@
+{"php": "8.4", "services": {}, "additionalServices": [{"group": "database", "service": "mysql", "name": "Analytics DB"}]}
