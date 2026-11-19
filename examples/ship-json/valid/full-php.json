@@ -14,14 +14,14 @@
         {"group": "database", "service": "mysql", "name": "analytics"}
     ],
     "serviceNames": {"app": "client-app"},
-    "externalNetwork": "proxy",
+    "externalNetwork": ["proxy", "monitoring"],
     "extensions": [],
     "phpExtensions": ["gd"],
     "publishPorts": false,
     "hostUser": true,
     "deployCommands": ["php artisan migrate --force"],
     "processes": {
-        "horizon": "php artisan horizon",
+        "horizon": {"command": "php artisan horizon", "healthcheck": "php artisan horizon:status"},
         "reverb": {
             "command": "php artisan reverb:start --host=0.0.0.0 --port=8080",
             "http": {"port": 8080, "role": "websocket", "health": null, "urlSetting": "REVERB_PUBLIC_HOST"}

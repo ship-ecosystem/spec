@@ -1,0 +1,1 @@
+/externalNetwork must match exactly one schema in oneOf
