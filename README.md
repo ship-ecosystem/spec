@@ -50,7 +50,9 @@ In GitHub Actions, one step checks the release a producer just built:
   Ship's release writer (only Docker was stood in: the archives are small
   placeholders with real checksums). Laravel behind nginx with a worker,
   Reverb, a deploy command and an external network; Laravel on Octane released
-  with `--no-env`; Symfony with Centrifugo, Valkey and Typesense.
+  with `--no-env`; Symfony with Centrifugo, Valkey and Typesense; plain PHP
+  (no framework) with a WebSocket server declared as a `processes` entry with
+  an `http` block, which puts it in `http[]`.
 - [`examples/valid-json/`](examples/valid-json) — a `release.json` with fields a
   later contract might add, which readers must accept.
 - [`examples/invalid/`](examples/invalid) — one defect each, with the problem it

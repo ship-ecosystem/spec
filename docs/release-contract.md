@@ -151,7 +151,7 @@ against both this document and the schema (see the repository's README).
 | `services.*.image` | string | Equal to one `images[].ref` or one `pulledImages[].ref`. |
 | `services.*.healthcheck` | bool | Whether the service has a Compose healthcheck, i.e. whether `docker compose up --wait` waits for it to be healthy rather than only started. |
 | `services.*.volumes` | string[] | The named volumes the service mounts, as declared in the Compose file (without the Compose project prefix). These hold data: back them up, and never remove them as part of a deploy. Empty when none. |
-| `framework` | string or null | The application's framework, e.g. `laravel`, `symfony`; null when unknown. **Unknown value:** treat as null. |
+| `framework` | string or null | The application's framework, e.g. `laravel`, `symfony`, `tempest`; null when unknown. **Unknown value:** treat as null. |
 | `runtime` | string | How the application serves HTTP, e.g. `php-fpm`, `octane-swoole`, `octane-roadrunner`, `octane-frankenphp`. **Unknown value:** no runtime-specific behaviour. |
 | `env.file` | string or null | The settings file in the release (`.env`), or null when the release carries none. |
 | `env.keys` | string[] | The name of every production setting. Names only, never values. |
