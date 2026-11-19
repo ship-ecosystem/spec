@@ -140,7 +140,7 @@ against both this document and the schema (see the repository's README).
 | `pulledImages[]` | array | Images not built by the producer (databases, caches, …). The server pulls them from their registry. |
 | `pulledImages[].ref` | string | A digest-pinned reference (`name:tag@sha256:…`). The Compose file uses this same reference. |
 | `pulledImages[].services` | string[] | The services that use it. |
-| `http[]` | array | The services that receive HTTP traffic, which a reverse proxy routes to. Empty when nothing does. |
+| `http[]` | array | The services that receive HTTP traffic, which a reverse proxy routes to: the site, the producer's own HTTP services (such as Reverb), and every process ship.json's `processes` declares with an `http` block, which is copied here as it is. Empty when nothing does. |
 | `http[].service` | string | A Compose service name. |
 | `http[].port` | int | The container port (not a host port). |
 | `http[].role` | string | `site`: the application's web traffic. `websocket`: a WebSocket server the browser connects to directly. **Unknown role:** plain HTTP. |

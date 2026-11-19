@@ -1,0 +1,12 @@
+{
+    "php": "8.4",
+    "services": {},
+    "processes": {
+        "reverb": {
+            "command": "php artisan reverb:start",
+            "http": {
+                "role": "websocket"
+            }
+        }
+    }
+}

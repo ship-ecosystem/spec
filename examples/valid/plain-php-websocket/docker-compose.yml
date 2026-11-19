@@ -1,0 +1,139 @@
+name: chat
+services:
+  app:
+    volumes: []
+    ports: []
+    networks:
+      - ship
+      - external
+    env_file:
+      -
+        path: .env
+        required: false
+    extra_hosts: []
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'SCRIPT_NAME=/ship-fpm-ping SCRIPT_FILENAME=/ship-fpm-ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    restart: unless-stopped
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+    image: 'chat-app:1.0.0'
+  webserver:
+    volumes: []
+    ports: []
+    depends_on:
+      - app
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1/ship-fpm-ping | grep -q pong'
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    networks:
+      - ship
+      - external
+    restart: unless-stopped
+    image: 'chat-webserver:1.0.0'
+  postgres:
+    image: 'postgres:18-alpine@sha256:8c876818198c13fd9a9edecdaa89d5b2f123514eecde48079168ff9dbe3118e5'
+    environment:
+      POSTGRES_DB: '${DB_DATABASE:-app}'
+      POSTGRES_USER: '${DB_USERNAME:-app}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:?set a real value in .env.production}'
+    volumes:
+      - 'ship-postgres-data:/var/lib/postgresql'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U ${DB_USERNAME:-app}'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ship
+    restart: unless-stopped
+    ports: []
+  ws:
+    command:
+      - sh
+      - '-c'
+      - 'php bin/ws-server.php --port=8080'
+    env_file:
+      -
+        path: .env
+        required: false
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      SHIP_RUN_AS: www-data
+    networks:
+      - ship
+      - external
+    restart: unless-stopped
+    stop_grace_period: 60s
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - '-r'
+        - "exit(@file_get_contents('http://127.0.0.1:8080/health', false, stream_context_create(['http' => ['timeout' => 5]])) === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    image: 'chat-app:1.0.0'
+  worker:
+    command:
+      - sh
+      - '-c'
+      - 'php bin/worker.php'
+    env_file:
+      -
+        path: .env
+        required: false
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_DATABASE: '${DB_DATABASE:-app}'
+      DB_USERNAME: '${DB_USERNAME:-app}'
+      DB_PASSWORD: '${DB_PASSWORD:-secret}'
+      SHIP_RUN_AS: www-data
+    networks:
+      - ship
+      - external
+    restart: unless-stopped
+    stop_grace_period: 60s
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'test "$$(awk -v up="$$(cut -d" " -f1 /proc/uptime)" ''{print int(up - $$22 / 100)}'' /proc/1/stat)" -ge 10'
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    image: 'chat-app:1.0.0'
+networks:
+  ship:
+    driver: bridge
+  external:
+    name: proxy
+    external: true
+volumes:
+  ship-postgres-data: null
