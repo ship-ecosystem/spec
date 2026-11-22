@@ -88,3 +88,5 @@ against `examples/`.
 Open a pull request here first, with the change to the document, the schema
 and the examples together, and `npm test` passing. The release contract's rules
 decide what kind of change is allowed; until it is frozen, corrections are.
+
+JavaScript producers use the shared process, network and release contracts. JavaScript-specific build, workspace and package-manager properties are registered in `schemas/ship.schema.json`; producer profiles may enforce additional runtime and framework restrictions. Command argument lists require a nonempty executable but allow empty subsequent arguments.
