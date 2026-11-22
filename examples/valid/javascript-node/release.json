@@ -1,0 +1,120 @@
+{
+  "format": "ship-release",
+  "app": "js-demo-production",
+  "tag": "example",
+  "createdAt": "2026-11-22T22:15:55.471Z",
+  "builder": {
+    "package": "js-ship",
+    "version": "0.1.0-dev.0"
+  },
+  "source": {
+    "gitCommit": null,
+    "dirty": null
+  },
+  "platform": "linux/amd64",
+  "compose": "docker-compose.yml",
+  "images": [
+    {
+      "ref": "js-demo-app:example",
+      "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "file": "images/app.tar",
+      "sha256": "4f7705dcc38058c0539f0ea9aa2ab9e6feca2f692c2226e8cd55589a157b3e11",
+      "services": [
+        "app",
+        "events"
+      ]
+    }
+  ],
+  "pulledImages": [
+    {
+      "ref": "redis:7-bookworm@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "services": [
+        "redis"
+      ]
+    }
+  ],
+  "http": [
+    {
+      "service": "app",
+      "port": 3000,
+      "role": "site",
+      "health": null,
+      "urlSetting": null
+    },
+    {
+      "service": "events",
+      "port": 4000,
+      "role": "websocket",
+      "health": "/ready",
+      "urlSetting": "EVENTS_URL"
+    }
+  ],
+  "services": {
+    "redis": {
+      "role": "infrastructure",
+      "image": "redis:7-bookworm@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "healthcheck": true,
+      "volumes": [
+        "redis_data"
+      ]
+    },
+    "app": {
+      "role": "app",
+      "image": "js-demo-app:example",
+      "healthcheck": false,
+      "volumes": []
+    },
+    "events": {
+      "role": "process",
+      "image": "js-demo-app:example",
+      "healthcheck": true,
+      "volumes": []
+    }
+  },
+  "framework": null,
+  "runtime": "node",
+  "env": {
+    "file": null,
+    "keys": [],
+    "referenced": [],
+    "required": []
+  },
+  "deploy": {
+    "service": "app",
+    "needs": [
+      "redis"
+    ],
+    "commands": [
+      [
+        "npm",
+        "run",
+        "db:migrate"
+      ]
+    ]
+  },
+  "requires": {
+    "networks": [
+      "metrics",
+      "proxy"
+    ]
+  },
+  "console": {
+    "service": "app",
+    "user": "node",
+    "shell": [
+      "sh"
+    ],
+    "commands": {
+      "node": [
+        "node"
+      ],
+      "npm": [
+        "npm"
+      ]
+    }
+  },
+  "extensions": {
+    "definitions": [],
+    "fingerprint": "ee96408c5b1f35bbec210b58769eee24729460b1fcea6c2a4267e7e13468ab22"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "js-demo",
+  "framework": "generic",
+  "node": "24",
+  "packageManager": "npm",
+  "packageManagerVersion": "12.2.2",
+  "services": {
+    "cache": "redis"
+  },
+  "externalNetwork": [
+    "proxy",
+    "metrics"
+  ],
+  "processes": {
+    "events": {
+      "command": [
+        "node",
+        "events.mjs"
+      ],
+      "http": {
+        "port": 4000,
+        "role": "websocket",
+        "health": "/ready",
+        "urlSetting": "EVENTS_URL"
+      }
+    }
+  },
+  "deployCommands": [
+    [
+      "npm",
+      "run",
+      "db:migrate"
+    ]
+  ]
+}
