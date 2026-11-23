@@ -1,0 +1,2 @@
+# Release checksums cover the archive bytes, including the placeholder archives in fixtures.
+*.tar -text

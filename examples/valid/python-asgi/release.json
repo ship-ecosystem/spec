@@ -1,0 +1,118 @@
+{
+  "format": "ship-release",
+  "app": "python-asgi",
+  "tag": "v1",
+  "createdAt": "2026-11-23T17:58:05Z",
+  "builder": {
+    "package": "python-ship",
+    "version": "0.1.0"
+  },
+  "source": {
+    "gitCommit": null,
+    "dirty": null
+  },
+  "platform": "linux/amd64",
+  "compose": "docker-compose.yml",
+  "images": [
+    {
+      "ref": "python-asgi-app:v1",
+      "id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "file": "images/app.tar",
+      "sha256": "0439b2f73712947543f5d60e774df255df6ce1ca3f1a7b4f6a762c44f93a478e",
+      "services": [
+        "app",
+        "socket"
+      ]
+    }
+  ],
+  "pulledImages": [
+    {
+      "ref": "postgres:18-alpine@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "services": [
+        "postgres"
+      ]
+    }
+  ],
+  "http": [
+    {
+      "service": "app",
+      "port": 8000,
+      "role": "site",
+      "health": null,
+      "urlSetting": null
+    },
+    {
+      "service": "socket",
+      "health": "/ready",
+      "urlSetting": "SOCKET_URL",
+      "port": 8081,
+      "role": "websocket"
+    }
+  ],
+  "services": {
+    "app": {
+      "role": "app",
+      "image": "python-asgi-app:v1",
+      "healthcheck": true,
+      "volumes": []
+    },
+    "postgres": {
+      "role": "infrastructure",
+      "image": "postgres:18-alpine@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "healthcheck": true,
+      "volumes": [
+        "postgres_data"
+      ]
+    },
+    "socket": {
+      "role": "process",
+      "image": "python-asgi-app:v1",
+      "healthcheck": true,
+      "volumes": []
+    }
+  },
+  "framework": null,
+  "runtime": "uvicorn",
+  "env": {
+    "file": null,
+    "keys": [
+      "DB_PASSWORD",
+      "SOCKET_URL"
+    ],
+    "referenced": [
+      "DB_DATABASE",
+      "DB_PASSWORD",
+      "DB_USERNAME"
+    ],
+    "required": [
+      "DB_PASSWORD"
+    ]
+  },
+  "deploy": {
+    "service": "app",
+    "needs": [
+      "postgres"
+    ],
+    "commands": [
+      [
+        "python",
+        "migrate.py",
+        ""
+      ]
+    ]
+  },
+  "requires": {
+    "networks": [
+      "metrics",
+      "proxy"
+    ]
+  },
+  "console": {
+    "service": "app",
+    "user": "10001:10001",
+    "shell": [
+      "sh"
+    ],
+    "commands": {}
+  }
+}

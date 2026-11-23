@@ -15,4 +15,8 @@ runs:
       run: npm ci --prefix "$GITHUB_ACTION_PATH" --ignore-scripts --no-audit --no-fund
     - name: Check the release
       shell: bash
-      run: node "$GITHUB_ACTION_PATH/tools/check-release.mjs" ${{ inputs.path }}
+      env:
+        SHIP_RELEASE_PATHS: ${{ inputs.path }}
+      run: |
+        read -r -d '' -a paths <<< "$SHIP_RELEASE_PATHS" || true
+        node "$GITHUB_ACTION_PATH/tools/check-release.mjs" "${paths[@]}"

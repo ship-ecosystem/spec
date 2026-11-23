@@ -4,7 +4,8 @@
 
 The shared contracts of the Ship ecosystem, in one place. Producers
 ([PHP Ship](https://github.com/ship-ecosystem/php-ship),
-[Python Ship](https://github.com/ship-ecosystem/python-ship), and others) write
+[JavaScript Ship](https://github.com/ship-ecosystem/js-ship), and
+[Python Ship](https://github.com/ship-ecosystem/python-ship)) write
 them; deployment tools and editors read them. This repository is the source of
 truth: when a producer and this repository disagree, this repository is right.
 
@@ -46,13 +47,11 @@ In GitHub Actions, one step checks the release a producer just built:
 
 `examples/` holds releases every producer and consumer can test against:
 
-- [`examples/valid/`](examples/valid) — complete release folders written by PHP
-  Ship's release writer (only Docker was stood in: the archives are small
-  placeholders with real checksums). Laravel behind nginx with a worker,
-  Reverb, a deploy command and an external network; Laravel on Octane released
-  with `--no-env`; Symfony with Centrifugo, Valkey and Typesense; plain PHP
-  (no framework) with a WebSocket server declared as a `processes` entry with
-  an `http` block, which puts it in `http[]`.
+- [`examples/valid/`](examples/valid) — complete release folders written by
+  the PHP, JavaScript and Python producers. Docker is mocked, so the archives
+  are small placeholders with real checksums. The examples cover PHP with
+  nginx and Octane, Node.js, and Python ASGI, including HTTP processes,
+  deploy commands, external networks, and releases without bundled settings.
 - [`examples/valid-json/`](examples/valid-json) — a `release.json` with fields a
   later contract might add, which readers must accept.
 - [`examples/invalid/`](examples/invalid) — one defect each, with the problem it

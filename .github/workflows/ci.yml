@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./
         with:
-          path: examples/valid/laravel-nginx examples/valid/symfony-centrifugo
+          path: examples/valid/laravel-nginx examples/valid/javascript-node examples/valid/python-asgi
       - id: invalid
         uses: ./
         continue-on-error: true
