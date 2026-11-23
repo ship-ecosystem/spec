@@ -13,6 +13,7 @@ truth: when a producer and this repository disagree, this repository is right.
 |---|---|---|---|
 | `ship.json`, a project's configuration | the schema's descriptions | [`schemas/ship.schema.json`](schemas/ship.schema.json) | stable |
 | `ship-release`, a release folder and its `release.json` | [`docs/release-contract.md`](docs/release-contract.md) | [`schemas/ship-release.schema.json`](schemas/ship-release.schema.json) | draft |
+| Shared service connection variables | [Service environment](docs/service-environment.md) | [`contracts/service-environment.json`](contracts/service-environment.json) | stable |
 
 The release contract is a draft until a release has been deployed end to end
 by a deployment tool on a real project. Until then it can still be corrected;

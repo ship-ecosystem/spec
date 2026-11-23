@@ -13,6 +13,17 @@ const target = (dir) => (dir.split('/').pop().startsWith('folder-') || dir.inclu
 
 let failed = 0;
 
+const serviceEnvironment = JSON.parse(readFileSync('contracts/service-environment.json', 'utf8'));
+for (const [provider, variables] of Object.entries(serviceEnvironment)) {
+  if (!/^[a-z][a-z0-9-]*$/.test(provider)
+      || !Array.isArray(variables) || variables.length === 0
+      || !variables.every(name => typeof name === 'string' && /^[A-Z][A-Z0-9_]*$/.test(name))
+      || JSON.stringify(variables) !== JSON.stringify([...new Set(variables)].sort())) {
+    failed++;
+    console.log(`FAIL  Invalid connection variable list for ${provider}`);
+  }
+}
+
 for (const dir of [...examples('examples/valid'), ...examples('examples/valid-json')]) {
   const problems = check(target(dir));
   if (problems.length === 0) {
