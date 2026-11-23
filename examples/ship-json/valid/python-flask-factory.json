@@ -1,0 +1,18 @@
+{
+  "name": "python-example",
+  "framework": "flask",
+  "app": "app:create_app()",
+  "server": "gunicorn",
+  "python": "3.13",
+  "services": {
+    "database": "postgres"
+  },
+  "build": {
+    "publicEnv": {
+      "VITE_API_URL": "https://example.test"
+    },
+    "secrets": [
+      "UV_INDEX_TOKEN"
+    ]
+  }
+}

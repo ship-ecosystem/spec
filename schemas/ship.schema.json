@@ -187,7 +187,7 @@
     },
     "node": {
       "type": "string",
-      "description": "Node.js major version: PHP asset tools or JavaScript application runtime."
+      "description": "Node.js major version for PHP/Python asset tooling or JavaScript application runtime."
     },
     "phpExtensions": {
       "type": "array",
@@ -204,8 +204,8 @@
     },
     "app": {
       "type": "string",
-      "pattern": "^[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*:[A-Za-z_]\\w*$",
-      "description": "Python: the ASGI or WSGI target to serve, module:callable."
+      "pattern": "^[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*:[A-Za-z_]\\w*(?:\\(\\))?$",
+      "description": "Python: ASGI or WSGI module:callable target; optional () calls a zero-argument application factory."
     },
     "python": {
       "type": "string",
@@ -295,7 +295,7 @@
           "description": "Mount .ship-secrets/npmrc for npm/pnpm dependency operations, never production runtime."
         }
       },
-      "description": "JavaScript: Explicit public values and temporary build credentials; runtime .env files are excluded from builds."
+      "description": "JavaScript and Python: explicit public build values and temporary credentials; runtime .env files are excluded from builds."
     },
     "deployment": {
       "type": "string",
