@@ -2,12 +2,11 @@
 
 [![CI](https://github.com/ship-ecosystem/spec/actions/workflows/ci.yml/badge.svg)](https://github.com/ship-ecosystem/spec/actions/workflows/ci.yml)
 
-The shared contracts of the Ship ecosystem, in one place. Producers
+This repository defines the shared Ship contracts. Producers
 ([PHP Ship](https://github.com/ship-ecosystem/php-ship),
 [JavaScript Ship](https://github.com/ship-ecosystem/js-ship), and
-[Python Ship](https://github.com/ship-ecosystem/python-ship)) write
-them; deployment tools and editors read them. This repository is the source of
-truth: when a producer and this repository disagree, this repository is right.
+[Python Ship](https://github.com/ship-ecosystem/python-ship)) implement them.
+Deployment tools and editors consume them.
 
 | Contract | Document | Schema | Status |
 |---|---|---|---|
@@ -68,13 +67,15 @@ one.
 
 A producer (a package that writes `ship.json` or releases):
 
-1. Keeps a copy of the schemas it validates against, so its own tests run
-   offline, and checks in CI that the copy is identical to this repository's.
-   A change to a contract lands here first; the drift check then fails until
-   the producer syncs.
+1. Keeps offline copies of the configuration and release schemas and the
+   shared service environment catalog. CI compares the copies against the spec.
 2. Runs the action on a release it really builds, in CI.
 3. Writes `$schema`/`$id` URLs that point here, e.g.
    `https://raw.githubusercontent.com/ship-ecosystem/spec/main/schemas/ship.schema.json`.
+
+Producer profiles can enforce framework and runtime restrictions in addition to
+the shared schema. Command argument lists require a nonempty executable and can
+contain empty subsequent arguments.
 
 ## For consumers
 
@@ -85,8 +86,6 @@ against `examples/`.
 
 ## Changing a contract
 
-Open a pull request here first, with the change to the document, the schema
-and the examples together, and `npm test` passing. The release contract's rules
-decide what kind of change is allowed; until it is frozen, corrections are.
-
-JavaScript producers use the shared process, network and release contracts. JavaScript-specific build, workspace and package-manager properties are registered in `schemas/ship.schema.json`; producer profiles may enforce additional runtime and framework restrictions. Command argument lists require a nonempty executable but allow empty subsequent arguments.
+Open a pull request here first and update the affected documentation, schemas,
+and examples together. Run `npm test`. The [release contract rules](docs/release-contract.md#rules)
+define the compatibility requirements for release format changes.
